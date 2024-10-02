@@ -5,16 +5,16 @@ const applicationSchema = new Schema({
         type: String,
         required: true,
     },
-    email: {
+    entryNumber: {
         type: String,
-        required: true,
         unique: true,
-        lowercase: true,
         trim: true,
     },
     cgpa: {
         type: Number,
         required: true,
+        min: 0,  
+        max: 10,
     },
     hostel: {
         type: String,

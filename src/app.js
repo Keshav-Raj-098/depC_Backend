@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors"
 import cookieParser from "cookie-parser";
+import { verifyjJWT } from "./middlewares/auth.middleware.js";
 
 const app = express()
 
@@ -25,14 +26,14 @@ import userRouter from "./routes/user.routes.js";
 
 
 // the following is a middleware (use)
-app.use("/api/v1/users",userRouter) 
+app.use("/api/v1/student",userRouter) 
 // the url will be https://localhost:port/api/v1/users/register 
 
 
 import applicationRouter from "./routes/application.routes.js"
 
 
-
+// applicationRouter.use(verifyjJWT)
 app.use("/api/v1/application",applicationRouter)
 
 

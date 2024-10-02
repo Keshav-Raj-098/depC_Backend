@@ -34,7 +34,6 @@ const registerUser = asyncHandler(async (req, res) => {
     // the inner element should be same as we defined in user.modal
     const { email, username, password } = req.body
 
-    console.log(req.body);
 
 
 
@@ -64,7 +63,11 @@ const registerUser = asyncHandler(async (req, res) => {
 
  
 
-    const user = await Student.create({email,password,username: username?.toLowerCase()})
+    const user = await Student.create({email
+        ,password,
+        username: username?.toLowerCase(),
+        application:  null
+    })
 
 
 
@@ -80,11 +83,13 @@ const registerUser = asyncHandler(async (req, res) => {
     }
     // [9] return res
 
-    return res.status(201).json(
+    return res.status(200).json(
         new Apiresponse(200, createduser, "Student registered successfully")
     )
 
 })
+
+
 
 
 // LOGIN CONTROLLER
@@ -121,19 +126,18 @@ const loginUser = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(user._id)
 
 
-
+  console.log({ accessToken, refreshToken } );
+  
 
     const loggedInuser = await Student.findById(user._id).select("-password-refreshToken")
 
     // [5]
     
     const options = {
-        
-        //     httpOnly: true: This means the cookie cannot be accessed or modified by client-side JavaScript. It helps mitigate certain kinds of cross-site scripting (XSS) attacks.
-        httpOnly: true,
-        // secure: true: This ensures the cookie is only sent over HTTPS, providing an additional layer of security by encrypting the data during transmission.
-        secure: true
-    }
+        httpOnly: true,     // Ensures the cookie is not accessible via JavaScript
+        secure: false,      // Set to false during local development, true in production over HTTPS
+        sameSite: 'None',   // Allows cross-site requests (necessary for different ports/domains)
+      };
 
     return res.status(200)
         .cookie("accessToken", accessToken, options)
@@ -151,16 +155,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logOutUser = asyncHandler(async (req, res) => {
 
-    // desiging our own middleware
-
-    console.log(req.user
-    );
+    const { id } = req.params;
 
     // user jab logout kar raha hai tab ham log uska refresh token delete/undefine karwa rhe hai aur jab user login karega to vo do no token fir se generate ho sakte hai
 
 
-    await Student.findByIdAndUpdate(
-        req.user._id,
+    await Student.findByIdAndUpdate(id,
 
         {
             $unset: {
@@ -238,22 +238,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // WRITING UPDATE CONTROLLER
 
 
@@ -289,12 +273,22 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 //  this middleware runs after the auth middleware so the request has user
 const getCurrentUser = asyncHandler(async (req, res) => {
-        
-    if(!req.user){throw new ApiError(400,"User not found")}
-    return res.status(200).json(200, req.user, "current user fetched successfully")
+   
+    if (!req.user) {
+        throw new ApiError(400, "User not found");
+    }
+
+    console.log("this is me :-", req.user);
+
+   
+    return res.status(200).json(
+        new Apiresponse(200,req.user,
+        "Student Fetched successfully"
 
 
-})
+    ));
+});
+
 
 
 

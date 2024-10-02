@@ -2,29 +2,43 @@ import { asyncHandler } from "../utils/asynchandler.js"
 import { ApiError } from "../utils/Apierror.js"
 import { Application } from "../models/application.model.js"
 import { Apiresponse } from "../utils/Apiresponse.js"
+import { Student } from "../models/student.model.js"
 
 const createApplication = asyncHandler(async (req, res) => {
 
-    const { name, email, cgpa, hostel, affidavit, list, } = req.body
+    const { id } = req.params;
+    const { name, entryNumber, cgpa, hostel, affidavit, list } = req.body;
 
-
-    const application = await Application.create({ name, email, cgpa, hostel, list })
-
-    if (!application) {
-        throw new ApiError(408, "Error While creating application")
+  
+    if (!name || !entryNumber || !cgpa || !hostel || !list) {
+        throw new ApiError(400, "All fields are required");
     }
 
-
-    return res.status(201).json(
-        new Apiresponse(200, application, "Application created successfully")
-    )
-})
+    try {
+       
+        const application = await Application.create({ name, entryNumber, cgpa, hostel, affidavit, list });
+            
+        const student = await Student.findByIdAndUpdate(
+            id,
+            { application: application._id }, // Link the application to the student
+            { new: true, runValidators: true }
+        );
+        if (!student) {
+            // Handle case where student is not found
+            throw new ApiError(404, "Student not found");
+        }
+        return res.status(200).json(new Apiresponse(200, student, "Application created successfully"));
+    } catch (error) {
+  
+        throw new ApiError(500, error.message || "Error while creating application");
+    }
+});
 
 
 const updateApplication = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
-    const { name, email, cgpa, hostel, affidavit, list} = req.body;
+    const { name, entryNumber, cgpa, hostel, affidavit, list} = req.body;
      
     console.log("Hello");
     
@@ -32,7 +46,7 @@ const updateApplication = asyncHandler(async (req, res) => {
     const updateFields = {};
 
     if (name) updateFields.name = name;
-    if (email) updateFields.email = email;
+    if (entryNumber) updateFields.entryNumber = entryNumber;
     if (cgpa) updateFields.cgpa = cgpa;
     if (hostel) updateFields.hostel = hostel;
     if (affidavit) updateFields.affidavit = affidavit;
@@ -54,22 +68,27 @@ const updateApplication = asyncHandler(async (req, res) => {
 
 
 const deleteApplication = asyncHandler(async (req, res) => {
-    
-    console.log(req);
     const { id } = req.params;
 
-    
-
+    // Find and delete the application
     const application = await Application.findByIdAndDelete(id);
 
     if (!application) {
         throw new ApiError(404, "Application not found");
     }
 
+    // Find the student linked to the deleted application and remove the application reference
+    await Student.findOneAndUpdate(
+        { application: id }, // Find student with the deleted application reference
+        { application: null }, // Remove the application link
+        { new: true } // Return the updated student document (optional)
+    );
+
     return res.status(200).json(
         new Apiresponse(200, null, "Application deleted successfully")
     );
 });
+
 
 
 const getApplication = asyncHandler(async (req, res) => {
@@ -80,7 +99,7 @@ const getApplication = asyncHandler(async (req, res) => {
     
 
     // If an ID is provided, find one specific application
-    if (id) {
+  
         const application = await Application.findById(id);
 
         if (!application) {
@@ -90,14 +109,10 @@ const getApplication = asyncHandler(async (req, res) => {
         return res.status(200).json(
             new Apiresponse(200, application, "Application retrieved successfully")
         );
-    }
+    
 
-    // If no ID is provided, retrieve all applications
-    const applications = await Application.find();
 
-    return res.status(200).json(
-        new Apiresponse(200, applications, "Applications retrieved successfully")
-    );
+    
 });
 
 
