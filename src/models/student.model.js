@@ -23,6 +23,11 @@ const studentSchema = new Schema({
         type: String,
         required:[true,'password is required']
     },
+    application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Application',
+        default: null,
+        },
     refreshToken:{
         type: String //just long strings
 

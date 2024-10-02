@@ -3,7 +3,7 @@ import { createApplication,updateApplication,deleteApplication,getApplication } 
 
 const router = Router();
 
-router.route("/create").post(createApplication)
+router.route("/create/:id").post(createApplication)
 router.route("/read/:id").get(getApplication)
 router.route("/update/:id").post(updateApplication)
 router.route("/delete/:id").post(deleteApplication)
