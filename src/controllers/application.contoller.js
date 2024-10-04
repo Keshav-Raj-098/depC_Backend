@@ -7,16 +7,16 @@ import { Student } from "../models/student.model.js"
 const createApplication = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
-    const { name, entryNumber, cgpa, hostel, affidavit, list } = req.body;
+    const { name, entryNumber, cgpa, branch, affidavit, list } = req.body;
 
   
-    if (!name || !entryNumber || !cgpa || !hostel || !list) {
+    if (!name || !entryNumber || !cgpa || !branch || !list) {
         throw new ApiError(400, "All fields are required");
     }
 
     try {
        
-        const application = await Application.create({ name, entryNumber, cgpa, hostel, affidavit, list });
+        const application = await Application.create({ name, entryNumber, cgpa, branch, affidavit, list });
             
         const student = await Student.findByIdAndUpdate(
             id,
@@ -38,7 +38,7 @@ const createApplication = asyncHandler(async (req, res) => {
 const updateApplication = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
-    const { name, entryNumber, cgpa, hostel, affidavit, list} = req.body;
+    const { name, entryNumber, cgpa, branch, affidavit, list} = req.body;
      
     console.log("Hello");
     
@@ -48,7 +48,7 @@ const updateApplication = asyncHandler(async (req, res) => {
     if (name) updateFields.name = name;
     if (entryNumber) updateFields.entryNumber = entryNumber;
     if (cgpa) updateFields.cgpa = cgpa;
-    if (hostel) updateFields.hostel = hostel;
+    if (branch) updateFields.branch = branch;
     if (affidavit) updateFields.affidavit = affidavit;
     if (list) updateFields.list = list;
 
