@@ -37,7 +37,9 @@ import applicationRouter from "./routes/application.routes.js"
 app.use("/api/v1/application",applicationRouter)
 
 
+import AdminRouter from "./routes/admin.routes.js"
 
+app.use("/api/v1/admin",AdminRouter) 
 
 
 

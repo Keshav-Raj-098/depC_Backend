@@ -16,7 +16,7 @@ const applicationSchema = new Schema({
         min: 0,  
         max: 10,
     },
-    hostel: {
+    branch: {
         type: String,
         required: true,
     },
