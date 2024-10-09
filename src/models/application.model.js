@@ -28,6 +28,11 @@ const applicationSchema = new Schema({
         type: [{ type: String }],
         required: true,
     },
+    newBranch:{
+        type: String,
+        required: false,
+        default:null
+    }
 
 }, { timestamps: true });
 
